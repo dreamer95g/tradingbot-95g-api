@@ -1,0 +1,11 @@
+# Entorno Virtual
+venv/
+__pycache__/
+*.pyc
+
+# Base de datos SQLite
+*.db
+*.db-journal
+
+# Archivos de entorno
+.env
