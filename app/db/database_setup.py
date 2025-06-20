@@ -1,7 +1,7 @@
+# app/db/database_setup.py
 import sqlite3
 import os
 
-# Define el nuevo nombre y la ruta del archivo de la base de datos
 DB_NAME = "trading-bot95g.db"
 DB_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), DB_NAME)
 
@@ -16,11 +16,10 @@ def create_connection():
     return conn
 
 def create_tables(conn):
-    """Crea las tablas en la base de datos con el esquema final y minimalista."""
+    """Crea las tablas en la base de datos con el esquema final, incluyendo account_type."""
     try:
         cursor = conn.cursor()
 
-        # --- Tabla de Usuarios ---
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -32,35 +31,27 @@ def create_tables(conn):
         """)
         print("Tabla 'users' verificada/creada.")
 
-        # --- Tabla de Configuración (Esquema Final y Simplificado) ---
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS settings (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 user_id INTEGER UNIQUE NOT NULL,
-                
-                -- Credenciales y Estado
                 po_token TEXT,
                 telegram_user_id INTEGER,
                 is_active INTEGER NOT NULL DEFAULT 0,
-                
-                -- Configuración de Operación
+                account_type TEXT NOT NULL DEFAULT 'DEMO',
                 base_amount REAL NOT NULL DEFAULT 10.0,
-                active_asset_id INTEGER, -- Clave foránea al activo que se está operando
+                active_asset_id INTEGER,
                 timeframe TEXT NOT NULL DEFAULT 'M1',
                 payout_min INTEGER NOT NULL DEFAULT 80,
-
-                -- Gestión de Riesgo
                 risk_strategy TEXT NOT NULL DEFAULT 'MARTINGALE',
                 stop_loss REAL NOT NULL DEFAULT 50.0,
                 take_profit REAL NOT NULL DEFAULT 100.0,
-                
                 FOREIGN KEY (user_id) REFERENCES users (id),
                 FOREIGN KEY (active_asset_id) REFERENCES assets (id)
             );
         """)
-        print("Tabla 'settings' verificada/creada.")
+        print("Tabla 'settings' verificada/creada con campo 'account_type'.")
 
-        # --- Tabla de Activos (Funciona como un "pool" de opciones) ---
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS assets (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -73,7 +64,6 @@ def create_tables(conn):
         """)
         print("Tabla 'assets' verificada/creada.")
 
-        # --- Tabla de Operaciones ---
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS trades (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -94,18 +84,15 @@ def create_tables(conn):
         print("Tabla 'trades' verificada/creada.")
         
         conn.commit()
-
     except sqlite3.Error as e:
         print(f"Error al crear las tablas: {e}")
 
 if __name__ == '__main__':
-    # Borra la base de datos anterior si existe para asegurar un esquema limpio.
     if os.path.exists(DB_FILE):
         print(f"Borrando la base de datos existente '{DB_FILE}' para recrearla...")
         os.remove(DB_FILE)
-
     conn = create_connection()
-    if conn is not None:
+    if conn:
         create_tables(conn)
         conn.close()
-        print("La base de datos se ha configurado correctamente con el esquema simplificado.")
+        print("La base de datos se ha configurado correctamente con el esquema final.")

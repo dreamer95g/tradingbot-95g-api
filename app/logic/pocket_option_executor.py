@@ -1,40 +1,29 @@
 # app/logic/pocket_option_executor.py
-import requests
-import time
 import random
+import time
 
-def place_trade(asset: str, amount: float, direction: str, timeframe: str, po_token: str) -> bool:
+def place_trade(asset: str, amount: float, direction: str, timeframe: str, po_token: str, account_type: str) -> bool:
     """
-    Envía una orden de operación al bot de Telegram de Pocket Option y SIMULA un resultado.
-    
-    En un sistema real, escucharíamos la respuesta. Por ahora, enviamos la orden
-    y simulamos un resultado para probar la lógica completa.
+    SIMULADOR de ejecución de operaciones en Pocket Option, respetando el tipo de cuenta.
     """
-    print(f"--- EJECUTANDO OPERACIÓN REAL ---")
+    print(f"--- SIMULANDO OPERACIÓN ({account_type.upper()}) ---")
     print(f"   Activo: {asset}")
     print(f"   Importe: ${amount}")
     print(f"   Dirección: {direction}")
 
-    # El formato del comando para el bot de Pocket Option es específico.
-    # /binary_bot token=TU_TOKEN asset=EURUSD amount=10 type=put time=1
-    # Nota: 'time' se refiere a la expiración en minutos.
+    # El comando cambia según el tipo de cuenta
+    command_prefix = "/demo_binary_bot" if account_type.upper() == 'DEMO' else "/binary_bot"
     
     # Extraemos el número de la temporalidad (ej: 'M1' -> 1)
     expiration_time = int(''.join(filter(str.isdigit, timeframe)))
-
-    # Mensaje que enviaremos a nuestro propio bot, que luego podría reenviar.
-    # Por ahora, simulamos la ejecución.
-    command_text = f"/binary_bot token={po_token} asset={asset} amount={amount} type={direction.lower()} time={expiration_time}"
     
-    print(f"   Comando a enviar: {command_text}")
+    command_text = f"{command_prefix} token={po_token} asset={asset} amount={amount} type={direction.lower()} time={expiration_time}"
+    
+    print(f"   Comando a simular: {command_text}")
     print("   (Simulación: Orden enviada a Pocket Option)")
     
-    # Simula el tiempo que tarda la operación en completarse
-    # time.sleep(expiration_time * 60) # Descomentar en un entorno real
-    time.sleep(2) # Pausa corta para la prueba
-    
-    # Devolvemos un resultado aleatorio para la prueba (70% de probabilidad de ganar)
-    is_win = random.random() < 0.70 
+    time.sleep(2)
+    is_win = random.random() < 0.70
     
     print(f"   Resultado de la Simulación: {'WIN' if is_win else 'LOSS'}")
     print(f"--------------------------")
