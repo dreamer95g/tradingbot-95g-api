@@ -47,6 +47,7 @@ El algoritmo se basa en la **confluencia** de un patrón de velas con múltiples
 
 ---
 
+
 ## ⚙️ Guía de Instalación y Ejecución Local
 
 Sigue estos pasos para poner en marcha el bot en un entorno de desarrollo.
